@@ -52,10 +52,17 @@ type GenericPlacementFields struct {
 	ClusterSelector *metav1.LabelSelector     `json:"clusterSelector,omitempty"`
 }
 
+type ClusterOverrideValue interface {
+	DeepCopy() ClusterOverrideValue
+}
+
 type ClusterOverride struct {
-	Op    string      `json:"op,omitempty"`
-	Path  string      `json:"path"`
-	Value interface{} `json:"value,omitempty"`
+	Op   string `json:"op,omitempty"`
+	Path string `json:"path"`
+	// TODO(RainbowMango): value should be `interface{}`, but deepcopy not support this as:
+	// F0730 14:35:07.878733   29978 deepcopy.go:876] DeepCopy of "interface{}" is unsupported. Instead, use named interfaces with DeepCopy<named-interface> as one of the methods.
+	// Just use a dummy interface 'ClusterOverrideValue'.
+	Value ClusterOverrideValue `json:"value,omitempty"`
 }
 
 type GenericOverrideItem struct {
