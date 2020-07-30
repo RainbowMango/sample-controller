@@ -35,8 +35,32 @@ type Foo struct {
 // FooSpec is the spec for a Foo resource
 type FooSpec struct {
 	Resource       metav1.GroupVersionResource `json:"resource,omitempty"`
+	Placement      GenericPlacementFields      `json:"placement,omitempty"`
+	Override       []GenericOverrideItem       `json:"overrides,omitempty"`
 	DeploymentName string                      `json:"deploymentName"`
 	Replicas       *int32                      `json:"replicas"`
+}
+
+// GenericClusterReference represents a signal cluster name.
+type GenericClusterReference struct {
+	Name string `json:"name"`
+}
+
+// GenericPlacementFields tells which clusters will be propagate to.
+type GenericPlacementFields struct {
+	Clusters        []GenericClusterReference `json:"clusters,omitempty"`
+	ClusterSelector *metav1.LabelSelector     `json:"clusterSelector,omitempty"`
+}
+
+type ClusterOverride struct {
+	Op    string      `json:"op,omitempty"`
+	Path  string      `json:"path"`
+	Value interface{} `json:"value,omitempty"`
+}
+
+type GenericOverrideItem struct {
+	ClusterName      string            `json:"clusterName"`
+	ClusterOverrides []ClusterOverride `json:"clusterOverrides,omitempty"`
 }
 
 // FooStatus is the status for a Foo resource
