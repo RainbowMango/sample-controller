@@ -7,5 +7,9 @@ spec:
     group: apps
     version: v1
     resource: example-foo
+  placement:
+    clusters:
+      - name: cluster2
+      - name: cluster1
   deploymentName: example-foo
   replicas: 1
