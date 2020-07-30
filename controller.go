@@ -19,6 +19,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -313,6 +314,15 @@ func (c *Controller) syncHandler(key string) error {
 	if err != nil {
 		return err
 	}
+
+	targetGVR := foo.Spec.Resource
+	klog.Infof("Need to propagate resource: %s", targetGVR.String())
+	targetClusters := foo.Spec.Placement.Clusters
+	var clusterNames []string
+	for _, clusterReference := range targetClusters {
+		clusterNames = append(clusterNames, clusterReference.Name)
+	}
+	klog.Infof("Need to place resource to %v", strings.Join(clusterNames, ","))
 
 	c.recorder.Event(foo, corev1.EventTypeNormal, SuccessSynced, MessageResourceSynced)
 	return nil
