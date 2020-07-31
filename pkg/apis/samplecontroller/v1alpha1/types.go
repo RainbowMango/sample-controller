@@ -17,6 +17,8 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"fmt"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -34,11 +36,28 @@ type Foo struct {
 
 // FooSpec is the spec for a Foo resource
 type FooSpec struct {
-	Resource       metav1.GroupVersionResource `json:"resource,omitempty"`
-	Placement      GenericPlacementFields      `json:"placement,omitempty"`
-	Override       []GenericOverrideItem       `json:"overrides,omitempty"`
-	DeploymentName string                      `json:"deploymentName"`
-	Replicas       *int32                      `json:"replicas"`
+	Target         PropagationTarget      `json:"target,omitempty"`
+	Placement      GenericPlacementFields `json:"placement,omitempty"`
+	Override       []GenericOverrideItem  `json:"overrides,omitempty"`
+	DeploymentName string                 `json:"deploymentName"`
+	Replicas       *int32                 `json:"replicas"`
+}
+
+// PropagationTarget used to tell which or which kind of resources should be propagate.
+// TODO(RainbowMango): Should provide a expression to support a kind of resources.
+type PropagationTarget struct {
+	// Group of the resource (e.g. apps)
+	Group string `json:"group,omitempty"`
+	// Version of the resource (e.g. v1)
+	Version string `json:"version"`
+	// Kind of the resource (e.g. Deployment)
+	Kind string `json:"kind"`
+	// Name of the resource, equal to metadata.name
+	Name string `json:"name"`
+}
+
+func (pt *PropagationTarget) String() string {
+	return fmt.Sprintf("group: %s, version: %s, kind: %s, name: %s", pt.Group, pt.Version, pt.Kind, pt.Name)
 }
 
 // GenericClusterReference represents a signal cluster name.

@@ -315,8 +315,8 @@ func (c *Controller) syncHandler(key string) error {
 		return err
 	}
 
-	targetGVR := foo.Spec.Resource
-	klog.Infof("Need to propagate resource: %s", targetGVR.String())
+	target := foo.Spec.Target
+	klog.Infof("Need to propagate resource: %s", target.String())
 	targetClusters := foo.Spec.Placement.Clusters
 	var clusterNames []string
 	for _, clusterReference := range targetClusters {
