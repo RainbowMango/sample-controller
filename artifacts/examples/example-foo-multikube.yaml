@@ -3,10 +3,11 @@ kind: Foo
 metadata:
   name: example-foo
 spec:
-  resource:
+  target:
     group: apps
     version: v1
-    resource: example-foo
+    kind: Deployment
+    name: example-foo
   placement:
     clusters:
       - name: cluster2
