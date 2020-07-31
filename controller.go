@@ -325,7 +325,8 @@ func (c *Controller) syncHandler(key string) error {
 	klog.Infof("Need to place resource to %v", strings.Join(clusterNames, ","))
 
 	// TODO(RainbowMango): If it works, then we can start with real member clusters
-	deployment.Name = target.Name
+	newDeployment := newDeployment(foo)
+	newDeployment.Name = target.Name
 	_, err = MemberClusterClientSet.AppsV1().Deployments(foo.Namespace).Create(context.TODO(), deployment, metav1.CreateOptions{})
 	if err != nil {
 		klog.Errorf("create new deployment failed as. error: %s", err.Error())
