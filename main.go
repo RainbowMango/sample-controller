@@ -35,6 +35,11 @@ import (
 var (
 	masterURL  string
 	kubeconfig string
+
+	// MemberClusterConfig is the config of a membercluster.
+	// TODO(RainbowMango): Just used for demo.
+	MemberClusterConfig    string
+	MemberClusterClientSet *kubernetes.Clientset
 )
 
 func main() {
@@ -49,9 +54,19 @@ func main() {
 		klog.Fatalf("Error building kubeconfig: %s", err.Error())
 	}
 
+	memberClusterConfig, err := clientcmd.BuildConfigFromFlags("", MemberClusterConfig)
+	if err != nil {
+		klog.Fatalf("Error building kubeconfig for member cluster: %s", err.Error())
+	}
+
 	kubeClient, err := kubernetes.NewForConfig(cfg)
 	if err != nil {
 		klog.Fatalf("Error building kubernetes clientset: %s", err.Error())
+	}
+
+	MemberClusterClientSet, err = kubernetes.NewForConfig(memberClusterConfig)
+	if err != nil {
+		klog.Fatalf("Error building kubernetes clientset for membercluster: %s", err.Error())
 	}
 
 	exampleClient, err := clientset.NewForConfig(cfg)
@@ -78,5 +93,6 @@ func main() {
 
 func init() {
 	flag.StringVar(&kubeconfig, "kubeconfig", "", "Path to a kubeconfig. Only required if out-of-cluster.")
+	flag.StringVar(&MemberClusterConfig, "memberclusterkubeconfig", "", "Path to a kubeconfig. Only required if out-of-cluster.")
 	flag.StringVar(&masterURL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
 }
