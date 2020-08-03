@@ -326,8 +326,7 @@ func (c *Controller) syncHandler(key string) error {
 	klog.Infof("Need to place resource to %v", strings.Join(clusterNames, ","))
 
 	// Retrieve target from head cluster.
-	// TODO(RainbowMango): extend API to adding a new resource fields.
-	targetResource := schema.GroupVersionResource{Group: target.Group, Version: target.Version, Resource: "deployments"}
+	targetResource := schema.GroupVersionResource{Group: target.Group, Version: target.Version, Resource: target.Resource}
 	getResult, getErr := HeadClusterDynamicClient.Resource(targetResource).Namespace(target.Namespace).Get(context.TODO(), target.Name, metav1.GetOptions{})
 	if getErr != nil {
 		klog.Infof("target resource still not present, will try later. target: %s", targetResource.String())
