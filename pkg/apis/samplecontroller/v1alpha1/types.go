@@ -54,6 +54,8 @@ type PropagationTarget struct {
 	Kind string `json:"kind"`
 	// Name of the resource, equal to metadata.name
 	Name string `json:"name"`
+	// Namespace defines which space the resource within.
+	Namespace string `json:"namespace,omitempty"`
 }
 
 func (pt *PropagationTarget) String() string {
