@@ -44,14 +44,13 @@ type FooSpec struct {
 }
 
 // PropagationTarget used to tell which or which kind of resources should be propagate.
-// TODO(RainbowMango): Should provide a expression to support a kind of resources.
 type PropagationTarget struct {
 	// Group of the resource (e.g. apps)
 	Group string `json:"group,omitempty"`
 	// Version of the resource (e.g. v1)
 	Version string `json:"version"`
-	// Kind of the resource (e.g. Deployment)
-	Kind string `json:"kind"`
+	// Resource type of the resource (e.g. deployments)
+	Resource string `json:"resource"`
 	// Name of the resource, equal to metadata.name
 	Name string `json:"name"`
 	// Namespace defines which space the resource within.
@@ -59,7 +58,7 @@ type PropagationTarget struct {
 }
 
 func (pt *PropagationTarget) String() string {
-	return fmt.Sprintf("group: %s, version: %s, kind: %s, name: %s", pt.Group, pt.Version, pt.Kind, pt.Name)
+	return fmt.Sprintf("group: %s, version: %s, resource: %s, name: %s", pt.Group, pt.Version, pt.Resource, pt.Name)
 }
 
 // GenericClusterReference represents a signal cluster name.
