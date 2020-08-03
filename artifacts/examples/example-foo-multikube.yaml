@@ -8,6 +8,7 @@ spec:
     version: v1
     kind: Deployment
     name: example-foo
+    namespace: default
   placement:
     clusters:
       - name: cluster2
