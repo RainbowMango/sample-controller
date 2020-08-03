@@ -26,6 +26,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	appsinformers "k8s.io/client-go/informers/apps/v1"
@@ -324,14 +325,30 @@ func (c *Controller) syncHandler(key string) error {
 	}
 	klog.Infof("Need to place resource to %v", strings.Join(clusterNames, ","))
 
-	// TODO(RainbowMango): If it works, then we can start with real member clusters
-	newDeployment := newDeployment(foo)
-	newDeployment.Name = target.Name
-	_, err = MemberClusterClientSet.AppsV1().Deployments(foo.Namespace).Create(context.TODO(), newDeployment, metav1.CreateOptions{})
-	if err != nil {
-		klog.Errorf("create new deployment failed as. error: %s", err.Error())
+	// Retrieve target from head cluster.
+	// TODO(RainbowMango): extend API to adding a new resource fields.
+	targetResource := schema.GroupVersionResource{Group: target.Group, Version: target.Version, Resource: "deployments"}
+	getResult, getErr := HeadClusterDynamicClient.Resource(targetResource).Namespace(target.Namespace).Get(context.TODO(), target.Name, metav1.GetOptions{})
+	if getErr != nil {
+		klog.Infof("target resource still not present, will try later. target: %s", targetResource.String())
+		return fmt.Errorf("failed to get target resource")
 	}
 
+	// Propagate target resource to member clusters
+	_, createErr := MemberClusterDynamicClient.Resource(targetResource).Namespace(target.Namespace).Create(context.TODO(), getResult, metav1.CreateOptions{})
+	if createErr != nil {
+		klog.Errorf("create target resource in member cluster failed. error: %s", createErr.Error())
+		return fmt.Errorf("failed to create target resource")
+	}
+	/*
+		// TODO(RainbowMango): If it works, then we can start with real member clusters
+		newDeployment := newDeployment(foo)
+		newDeployment.Name = target.Name
+		_, err = MemberClusterClientSet.AppsV1().Deployments(foo.Namespace).Create(context.TODO(), newDeployment, metav1.CreateOptions{})
+		if err != nil {
+			klog.Errorf("create new deployment failed as. error: %s", err.Error())
+		}
+	*/
 	c.recorder.Event(foo, corev1.EventTypeNormal, SuccessSynced, MessageResourceSynced)
 	return nil
 }

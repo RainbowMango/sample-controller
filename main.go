@@ -20,6 +20,7 @@ import (
 	"flag"
 	"time"
 
+	"k8s.io/client-go/dynamic"
 	kubeinformers "k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -40,6 +41,9 @@ var (
 	// TODO(RainbowMango): Just used for demo.
 	MemberClusterConfig    string
 	MemberClusterClientSet *kubernetes.Clientset
+
+	HeadClusterDynamicClient   dynamic.Interface
+	MemberClusterDynamicClient dynamic.Interface
 )
 
 func main() {
@@ -68,6 +72,9 @@ func main() {
 	if err != nil {
 		klog.Fatalf("Error building kubernetes clientset for membercluster: %s", err.Error())
 	}
+
+	HeadClusterDynamicClient = dynamic.NewForConfigOrDie(cfg)
+	MemberClusterDynamicClient = dynamic.NewForConfigOrDie(memberClusterConfig)
 
 	exampleClient, err := clientset.NewForConfig(cfg)
 	if err != nil {
