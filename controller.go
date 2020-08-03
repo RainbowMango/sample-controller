@@ -332,6 +332,7 @@ func (c *Controller) syncHandler(key string) error {
 		klog.Infof("target resource still not present, will try later. target: %s", targetResource.String())
 		return fmt.Errorf("failed to get target resource")
 	}
+	getResult.SetResourceVersion("") // resourceVersion should not be set on objects to be created
 
 	// Propagate target resource to member clusters
 	_, createErr := MemberClusterDynamicClient.Resource(targetResource).Namespace(target.Namespace).Create(context.TODO(), getResult, metav1.CreateOptions{})
